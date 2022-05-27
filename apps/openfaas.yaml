@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openfaas-operator
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    path: chart/openfaas
+    repoURL: https://github.com/openfaas/faas-netes.git
+    helm:
+      parameters:
+      - name: operator.create
+        value: "true"
+      - name: generateBasicAuth
+        value: "true"
+      - name: functionNamespace
+        # todo: better to move this in its own namespace, but must take care of creating the ns beforehand
+        value: openfaas
+
+  destination:
+    namespace: openfaas
+    server: https://34.149.7.236:443
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
